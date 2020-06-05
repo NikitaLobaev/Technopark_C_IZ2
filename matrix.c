@@ -20,6 +20,16 @@ int matrix_mirroring(const int *matrix_source, size_t rows_count, size_t columns
 	return IZ2_OK;
 }
 
+int matrix_mirroring_multiproc(const int *matrix_source, size_t rows_count, size_t columns_count, int *matrix_destination, size_t proc_count) {
+	if (!matrix_source || !matrix_destination) {
+		return IZ2_ERROR_MEMORY;
+	} else if (rows_count == 0 || columns_count == 0 || proc_count == 0) {
+		return IZ2_ERROR_ARGUMENT;
+	}
+	
+	return IZ2_OK;
+}
+
 int matrix_read(int *matrix, size_t rows_count, size_t columns_count) {
 	if (!matrix) {
 		return IZ2_ERROR_MEMORY;
