@@ -5,7 +5,6 @@ addons:
       - valgrind
       - cmake
       - libgtest-dev
-      - lcov
 
 sudo: required
 
@@ -15,9 +14,11 @@ os: linux
 
 compiler: gcc
 
-script:
+before_script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake ../
   - make
+
+script:
   - valgrind --leak-check=full --leak-resolution=med --vgdb=no --track-origins=yes ./Technopark_C_IZ2_tests
