@@ -35,6 +35,7 @@ TEST(matrix_mirroring, test2) {
 	                       matrix_destination));
 	delete[] matrix_source;
 	delete[] matrix_destination;
+	delete[] matrix_destination_correct;
 }
 
 TEST(matrix_mirroring, test3) {
@@ -54,4 +55,5 @@ TEST(matrix_mirroring, test3) {
 			matrix_destination));
 	delete[] matrix_source;
 	delete[] matrix_destination;
+	delete[] matrix_destination_correct;
 }
