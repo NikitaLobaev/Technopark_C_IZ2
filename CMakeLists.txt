@@ -5,7 +5,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "-Wall -Werror -Wpedantic")
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(GTest)
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(Technopark_C_IZ2 main.c matrix.h matrix.c)
 
