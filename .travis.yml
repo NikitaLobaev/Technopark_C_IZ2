@@ -1,3 +1,12 @@
+addons:
+  apt:
+    update: true
+    packages:
+      - valgrind
+      - cmake
+      - libgtest-dev
+      - lcov
+
 sudo: required
 
 language: c
@@ -7,9 +16,8 @@ os: linux
 compiler: gcc
 
 script:
-  - sudo apt update
-  - sudo apt install gcc-7 g++-7 cmake libgtest-dev valgrind
   - mkdir build
   - cd build
-  - cmake .. && make
+  - cmake ..
+  - make
   - valgrind --leak-check=full --leak-resolution=med --vgdb=no --track-origins=yes ./Technopark_C_IZ2_tests
