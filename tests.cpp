@@ -18,6 +18,8 @@ TEST(matrix_mirroring, test1) {
 	ASSERT_EQ(matrix_mirroring(matrix_source, 1, 0, matrix_destination), IZ2_ERROR_ARGUMENT);
 	ASSERT_EQ(matrix_mirroring(matrix_source, 1, 1, matrix_destination), IZ2_OK);
 	ASSERT_EQ(matrix_destination[0], 123);
+	delete[] matrix_source;
+	delete[] matrix_destination;
 }
 
 TEST(matrix_mirroring, test2) {
@@ -31,6 +33,8 @@ TEST(matrix_mirroring, test2) {
 	const int *matrix_destination_correct = new int[rows_count * columns_count]{8, 5, 2, 7, 4, 1, 6, 3, 0};
 	ASSERT_TRUE(std::equal(matrix_destination_correct, matrix_destination_correct + rows_count * columns_count,
 	                       matrix_destination));
+	delete[] matrix_source;
+	delete[] matrix_destination;
 }
 
 TEST(matrix_mirroring, test3) {
@@ -48,4 +52,6 @@ TEST(matrix_mirroring, test3) {
 																			 45, 40, 35, 30, 25, 20, 15, 10, 5, 0};
 	ASSERT_TRUE(std::equal(matrix_destination_correct, matrix_destination_correct + rows_count * columns_count,
 			matrix_destination));
+	delete[] matrix_source;
+	delete[] matrix_destination;
 }
