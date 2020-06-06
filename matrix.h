@@ -14,4 +14,4 @@ u_int8_t matrix_mirroring(const int*, size_t, size_t, int*);
 
 u_int8_t matrix_mirroring_multiproc(const int*, size_t, size_t, int*, size_t);
 
-#endif //TECHNOPARK_C_IZ2_MATRIX_H
+#endif  // TECHNOPARK_C_IZ2_MATRIX_H

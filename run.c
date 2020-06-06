@@ -3,17 +3,24 @@
 #include <sys/mman.h>
 #include "matrix.h"
 
-int run(size_t source_rows_count, size_t source_columns_count, size_t proc_count) {
+int run(size_t source_rows_count, size_t source_columns_count,
+        size_t proc_count) {
 	if (proc_count == 0) {
 		return IZ2_ERROR_ARGUMENT;
 	}
 	int *source, *destination;
 	if (proc_count == 1) {
-		source = (int*) malloc(source_rows_count * source_columns_count * sizeof(int));
-		destination = (int*) malloc(source_columns_count * source_rows_count * sizeof(int));
+		source =
+				(int *)malloc(source_rows_count * source_columns_count * sizeof(int));
+		destination =
+				(int *)malloc(source_columns_count * source_rows_count * sizeof(int));
 	} else {
-		source = (int*) mmap(NULL, source_rows_count * source_columns_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-		destination = (int*) mmap(NULL, source_columns_count * source_rows_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		source = (int *)mmap(
+				NULL, source_rows_count * source_columns_count * sizeof(int),
+				PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		destination = (int *)mmap(
+				NULL, source_columns_count * source_rows_count * sizeof(int),
+				PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	}
 	u_int8_t error = IZ2_OK;
 	if (!source || !destination) {
@@ -21,9 +28,12 @@ int run(size_t source_rows_count, size_t source_columns_count, size_t proc_count
 	}
 	error |= matrix_read(source, source_rows_count, source_columns_count);
 	if (proc_count == 1) {
-		error |= matrix_mirroring(source, source_rows_count, source_columns_count, destination);
+		error |= matrix_mirroring(source, source_rows_count, source_columns_count,
+		                          destination);
 	} else {
-		error |= matrix_mirroring_multiproc(source, source_rows_count, source_columns_count, destination, proc_count);
+		error |= matrix_mirroring_multiproc(source, source_rows_count,
+		                                    source_columns_count, destination,
+		                                    proc_count);
 	}
 	error |= matrix_print(destination, source_rows_count, source_columns_count);
 	if (proc_count == 1) {
@@ -40,7 +50,9 @@ int run(size_t source_rows_count, size_t source_columns_count, size_t proc_count
 		printf("Ошибка. Некорректные аргументы функций.\n");
 	}
 	if ((error & 4u) == 4u) {
-		printf("Ошибка. Не удалось создать процесс для работы параллельного алгоритма.\n");
+		printf(
+				"Ошибка. Не удалось создать процесс для работы параллельного "
+				"алгоритма.\n");
 	}
 	return error;
 }
