@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 
 extern "C" {
+#include <sys/mman.h>
 #include "matrix.h"
-#include "run.c"
 }
 
 int main(int argc, char **argv) {
@@ -24,15 +24,15 @@ TEST(matrix_mirroring, test1) {
 }
 
 TEST(matrix_mirroring, test2) {
-	const size_t rows_count = 3, columns_count = 3;
-	auto source = new int[rows_count * columns_count];
-	for (size_t index = 0; index < rows_count * columns_count; index++) {
+	const size_t source_rows_count = 3, source_columns_count = 3;
+	auto source = new int[source_rows_count * source_columns_count];
+	for (size_t index = 0; index < source_rows_count * source_columns_count; index++) {
 		source[index] = index;
 	}
-	auto destination = new int[rows_count * columns_count];
-	EXPECT_EQ(matrix_mirroring(source, rows_count, columns_count, destination), IZ2_OK);
-	const int *destination_correct = new int[rows_count * columns_count]{8, 5, 2, 7, 4, 1, 6, 3, 0};
-	EXPECT_TRUE(std::equal(destination_correct, destination_correct + rows_count * columns_count,
+	auto destination = new int[source_rows_count * source_columns_count];
+	EXPECT_EQ(matrix_mirroring(source, source_rows_count, source_columns_count, destination), IZ2_OK);
+	const int *destination_correct = new int[source_rows_count * source_columns_count]{8, 5, 2, 7, 4, 1, 6, 3, 0};
+	EXPECT_TRUE(std::equal(destination_correct, destination_correct + source_rows_count * source_columns_count,
 	                       destination));
 	delete[] source;
 	delete[] destination;
@@ -40,19 +40,19 @@ TEST(matrix_mirroring, test2) {
 }
 
 TEST(matrix_mirroring, test3) {
-	const size_t rows_count = 10, columns_count = 5;
-	auto source = new int[rows_count * columns_count];
-	for (size_t index = 0; index < rows_count * columns_count; index++) {
+	const size_t source_rows_count = 10, source_columns_count = 5;
+	auto source = new int[source_rows_count * source_columns_count];
+	for (size_t index = 0; index < source_rows_count * source_columns_count; index++) {
 		source[index] = index;
 	}
-	auto destination = new int[rows_count * columns_count];
-	EXPECT_EQ(matrix_mirroring(source, rows_count, columns_count, destination), IZ2_OK);
-	const int *destination_correct = new int[rows_count * columns_count]{49, 44, 39, 34, 29, 24, 19, 14, 9, 4,
-																			 48, 43, 38, 33, 28, 23, 18, 13, 8, 3,
-																			 47, 42, 37, 32, 27, 22, 17, 12, 7, 2,
-																			 46, 41, 36, 31, 26, 21, 16, 11, 6, 1,
-																			 45, 40, 35, 30, 25, 20, 15, 10, 5, 0};
-	EXPECT_TRUE(std::equal(destination_correct, destination_correct + rows_count * columns_count,
+	auto destination = new int[source_rows_count * source_columns_count];
+	EXPECT_EQ(matrix_mirroring(source, source_rows_count, source_columns_count, destination), IZ2_OK);
+	const int *destination_correct = new int[source_rows_count * source_columns_count]{49, 44, 39, 34, 29, 24, 19, 14, 9, 4,
+	                                                                                   48, 43, 38, 33, 28, 23, 18, 13, 8, 3,
+	                                                                                   47, 42, 37, 32, 27, 22, 17, 12, 7, 2,
+	                                                                                   46, 41, 36, 31, 26, 21, 16, 11, 6, 1,
+	                                                                                   45, 40, 35, 30, 25, 20, 15, 10, 5, 0};
+	EXPECT_TRUE(std::equal(destination_correct, destination_correct + source_rows_count * source_columns_count,
 			destination));
 	delete[] source;
 	delete[] destination;
@@ -78,37 +78,37 @@ TEST(matrix_mirroring_multiproc, test1) {
 }
 
 TEST(matrix_mirroring_multiproc, test2) {
-	const size_t rows_count = 3, columns_count = 3;
-	auto source = new int[rows_count * columns_count];
-	for (size_t index = 0; index < rows_count * columns_count; index++) {
+	const size_t source_rows_count = 3, source_columns_count = 3;
+	auto source = (int*) mmap(nullptr, source_rows_count * source_columns_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	for (size_t index = 0; index < source_rows_count * source_columns_count; index++) {
 		source[index] = index;
 	}
-	auto destination = new int[rows_count * columns_count];
-	EXPECT_EQ(matrix_mirroring_multiproc(source, rows_count, columns_count, destination, 2), IZ2_OK);
-	const int *destination_correct = new int[rows_count * columns_count]{8, 5, 2, 7, 4, 1, 6, 3, 0};
-	EXPECT_TRUE(std::equal(destination_correct, destination_correct + rows_count * columns_count, destination));
-	delete[] source;
-	delete[] destination;
+	auto destination = (int*) mmap(nullptr, source_columns_count * source_rows_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	EXPECT_EQ(matrix_mirroring_multiproc(source, source_rows_count, source_columns_count, destination, 2), IZ2_OK);
+	const int *destination_correct = new int[source_rows_count * source_columns_count]{8, 5, 2, 7, 4, 1, 6, 3, 0};
+	EXPECT_TRUE(std::equal(destination_correct, destination_correct + source_rows_count * source_columns_count, destination));
+	munmap(source, source_rows_count * source_columns_count * sizeof(int));
+	munmap(destination, source_columns_count * source_rows_count * sizeof(int));
 	delete[] destination_correct;
 }
 
 TEST(matrix_mirroring_multiproc, test3) {
-	const size_t rows_count = 10, columns_count = 5;
-	auto source = new int[rows_count * columns_count];
-	for (size_t index = 0; index < rows_count * columns_count; index++) {
+	const size_t source_rows_count = 10, source_columns_count = 5;
+	auto source = (int*) mmap(nullptr, source_rows_count * source_columns_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	for (size_t index = 0; index < source_rows_count * source_columns_count; index++) {
 		source[index] = index;
 	}
-	auto destination = new int[rows_count * columns_count];
-	const int *destination_correct = new int[rows_count * columns_count]{49, 44, 39, 34, 29, 24, 19, 14, 9, 4,
+	auto destination = (int*) mmap(nullptr, source_columns_count * source_rows_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	const int *destination_correct = new int[source_rows_count * source_columns_count]{49, 44, 39, 34, 29, 24, 19, 14, 9, 4,
 	                                                                     48, 43, 38, 33, 28, 23, 18, 13, 8, 3,
 	                                                                     47, 42, 37, 32, 27, 22, 17, 12, 7, 2,
 	                                                                     46, 41, 36, 31, 26, 21, 16, 11, 6, 1,
 	                                                                     45, 40, 35, 30, 25, 20, 15, 10, 5, 0};
-	for (size_t max_proc_count = 1; max_proc_count <= rows_count; max_proc_count++) {
-		EXPECT_EQ(matrix_mirroring_multiproc(source, rows_count, columns_count, destination, 4), IZ2_OK);
-		EXPECT_TRUE(std::equal(destination_correct, destination_correct + rows_count * columns_count, destination));
+	for (size_t max_proc_count = 1; max_proc_count <= source_rows_count; max_proc_count++) {
+		EXPECT_EQ(matrix_mirroring_multiproc(source, source_rows_count, source_columns_count, destination, 4), IZ2_OK);
+		EXPECT_TRUE(std::equal(destination_correct, destination_correct + source_rows_count * source_columns_count, destination));
 	}
-	delete[] source;
-	delete[] destination;
+	munmap(source, source_rows_count * source_columns_count * sizeof(int));
+	munmap(destination, source_columns_count * source_rows_count * sizeof(int));
 	delete[] destination_correct;
 }
