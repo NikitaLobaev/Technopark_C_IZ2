@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "matrix.h"
 
-int matrix_mirroring(const int *matrix_source, size_t rows_count, size_t columns_count, int *matrix_destination) {
+u_int8_t matrix_mirroring(const int *matrix_source, size_t rows_count, size_t columns_count, int *matrix_destination) {
 	if (!matrix_source || !matrix_destination) {
 		return IZ2_ERROR_MEMORY;
 	} else if (rows_count == 0 || columns_count == 0) {
@@ -20,17 +22,22 @@ int matrix_mirroring(const int *matrix_source, size_t rows_count, size_t columns
 	return IZ2_OK;
 }
 
-int matrix_mirroring_multiproc(const int *matrix_source, size_t rows_count, size_t columns_count, int *matrix_destination, size_t proc_count) {
+u_int8_t matrix_mirroring_multiproc(const int *matrix_source, size_t rows_count, size_t columns_count, int *matrix_destination, size_t proc_count) {
 	if (!matrix_source || !matrix_destination) {
 		return IZ2_ERROR_MEMORY;
 	} else if (rows_count == 0 || columns_count == 0 || proc_count == 0) {
 		return IZ2_ERROR_ARGUMENT;
 	}
+	pid_t ppp = fork();
+	if (ppp == 0) {
 	
+	} else {
+	
+	}
 	return IZ2_OK;
 }
 
-int matrix_read(int *matrix, size_t rows_count, size_t columns_count) {
+u_int8_t matrix_read(int *matrix, size_t rows_count, size_t columns_count) {
 	if (!matrix) {
 		return IZ2_ERROR_MEMORY;
 	} else if (rows_count == 0 || columns_count == 0) {
@@ -42,7 +49,7 @@ int matrix_read(int *matrix, size_t rows_count, size_t columns_count) {
 	return IZ2_OK;
 }
 
-int matrix_print(const int *matrix, size_t rows_count, size_t columns_count) {
+u_int8_t matrix_print(const int *matrix, size_t rows_count, size_t columns_count) {
 	if (!matrix) {
 		return IZ2_ERROR_MEMORY;
 	} else if (rows_count == 0 || columns_count == 0) {
