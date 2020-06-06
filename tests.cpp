@@ -2,6 +2,7 @@
 
 extern "C" {
 #include <sys/mman.h>
+#include <sys/sysinfo.h>
 #include "matrix.h"
 }
 
@@ -107,8 +108,31 @@ TEST(matrix_mirroring_multiproc, test3) {
 	for (size_t max_proc_count = 1; max_proc_count <= source_rows_count; max_proc_count++) {
 		EXPECT_EQ(matrix_mirroring_multiproc(source, source_rows_count, source_columns_count, destination, 4), IZ2_OK);
 		EXPECT_TRUE(std::equal(destination_correct, destination_correct + source_rows_count * source_columns_count, destination));
+		munmap(destination, source_columns_count * source_rows_count * sizeof(int));
+		destination = (int*) mmap(nullptr, source_columns_count * source_rows_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	}
 	munmap(source, source_rows_count * source_columns_count * sizeof(int));
 	munmap(destination, source_columns_count * source_rows_count * sizeof(int));
 	delete[] destination_correct;
+}
+
+TEST(matrix_mirroring_multiproc, test4) {
+	const size_t source_rows_count = 10000, source_columns_count = 5000;
+	auto source = (int*) mmap(nullptr, source_rows_count * source_columns_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	for (size_t index = 0; index < source_rows_count * source_columns_count; index++) {
+		source[index] = index;
+	}
+	auto destination = new int[source_rows_count * source_columns_count];
+	EXPECT_EQ(matrix_mirroring(source, source_rows_count, source_columns_count, destination), IZ2_OK);
+	auto destination_multiproc = (int*) mmap(nullptr, source_columns_count * source_rows_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	const size_t nprocs = get_nprocs();
+	for (size_t max_proc_count = 1; max_proc_count <= nprocs; max_proc_count++) {
+		EXPECT_EQ(matrix_mirroring_multiproc(source, source_rows_count, source_columns_count, destination_multiproc, 4), IZ2_OK);
+		EXPECT_TRUE(std::equal(destination, destination + source_rows_count * source_columns_count, destination_multiproc));
+		munmap(destination_multiproc, source_columns_count * source_rows_count * sizeof(int));
+		destination_multiproc = (int*) mmap(nullptr, source_columns_count * source_rows_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	}
+	munmap(source, source_rows_count * source_columns_count * sizeof(int));
+	munmap(destination_multiproc, source_columns_count * source_rows_count * sizeof(int));
+	delete[] destination;
 }

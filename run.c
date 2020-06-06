@@ -3,14 +3,7 @@
 #include <sys/mman.h>
 #include "matrix.h"
 
-int run(int argc, char **argv) {
-	if (argc != 3 && argc != 4) {
-		printf("Usage: ./matrix <количество строк> <количество столбцов> (<максимальное количество процессов>)");
-		return IZ2_ERROR_ARGUMENT;
-	}
-	u_int8_t error = IZ2_OK;
-	const size_t source_rows_count = (size_t) atoi(argv[1]), source_columns_count = (size_t) atoi(argv[2]);
-	const size_t proc_count = (argc == 4 ? (size_t) atoi(argv[3]) : 1);
+int run(size_t source_rows_count, size_t source_columns_count, size_t proc_count) {
 	if (proc_count == 0) {
 		return IZ2_ERROR_ARGUMENT;
 	}
@@ -22,6 +15,7 @@ int run(int argc, char **argv) {
 		source = (int*) mmap(NULL, source_rows_count * source_columns_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		destination = (int*) mmap(NULL, source_columns_count * source_rows_count * sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	}
+	u_int8_t error = IZ2_OK;
 	if (!source || !destination) {
 		error |= IZ2_ERROR_MEMORY;
 	}
