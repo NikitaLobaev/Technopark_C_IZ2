@@ -1,0 +1,31 @@
+addons:
+  apt:
+    update: true
+    packages:
+      - valgrind
+      - cmake
+      - libgtest-dev
+
+sudo: required
+
+language: c
+
+os: linux
+
+compiler: gcc
+
+before_install:
+  - cd /usr/src/gtest
+  - sudo cmake CMakeLists.txt || (cat CMakeFiles/CMakeError.log && CMakeFiles/CMakeOutput.log)
+  - sudo make
+  - sudo cp *.a /usr/lib
+  - cd -
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ../
+  - make
+
+script:
+  - valgrind --leak-check=full --leak-resolution=med --vgdb=no --track-origins=yes ./Technopark_C_IZ2_tests
